@@ -1,0 +1,19 @@
+version: '2.0'
+
+services:
+  db:
+    image: postgres:12-alpine
+    env_file:
+      - ./.env
+  web:
+    build: .
+    command: >
+      sh -c "./wait-for-it.sh db:5432 &&
+             alembic upgrade head &&
+             gunicorn --bind 0.0.0.0:5000 app"
+    ports:
+      - 5000:5000
+    env_file:
+      - ./.env
+    depends_on:
+      - db
